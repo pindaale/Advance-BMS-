@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BAT-BMS Universal Pro v2.0</title>
+<style>
+:root{--bg:#060b14;--card:#0e1726;--card2:#131f33;--bdr:#1e304d;--cyan:#00e5ff;--green:#00e676;--amber:#ffab00;--red:#ff3d71;--blue:#2979ff;--txt:#e6f1ff;--mut:#7c93b0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px;overflow-x:hidden;padding-bottom:68px}
+.hw-bar{position:sticky;top:0;z-index:99;background:rgba(6,11,20,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bdr);padding:6px 8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:space-between}
+.hw-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:12px;font-size:10px;font-weight:700;background:#111c2d;border:1px solid var(--bdr);letter-spacing:.3px}
+.hw-dot{width:6px;height:6px;border-radius:50%;background:var(--red)}
+.hw-chip.on .hw-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.hw-chip.on{border-color:rgba(0,230,118,.35);color:#b9f6ca}
+.hw-chip.ready .hw-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.hw-chip.ready{border-color:rgba(0,229,255,.35);color:#84ffff}
+.gate{position:fixed;inset:0;top:36px;z-index:90;background:radial-gradient(circle at 50% 10%,#0f223d,#060b14 70%);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.gate.hidden{display:none}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.title{font-size:16px;font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;padding:2px 7px;border-radius:8px;background:rgba(0,229,255,.15);color:var(--cyan);border:1px solid rgba(0,229,255,.3)}
+.sub{color:var(--mut);font-size:11px;margin-top:3px}
+.gate-row{display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:8px}
+.gate-info{display:flex;flex-direction:column;gap:2px}
+.gate-name{font-weight:700;font-size:13px}
+.gate-st{font-size:11px;color:var(--mut)}
+.btn{border:none;border-radius:9px;padding:8px 12px;font-weight:700;font-size:11px;cursor:pointer;transition:transform .15s}
+.btn:active{transform:scale(.96)}
+.btn-cyan{background:linear-gradient(135deg,#00e5ff,#2979ff);color:#04101f}
+.btn-green{background:linear-gradient(135deg,#00e676,#00b248);color:#031a0c}
+.btn-red{background:linear-gradient(135deg,#ff3d71,#d50032);color:#fff}
+.btn-dark{background:#16243a;color:var(--txt);border:1px solid var(--bdr)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:80;background:#0a1220;border-top:1px solid var(--bdr);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 4px}
+.nav-btn{background:none;border:none;color:var(--mut);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;cursor:pointer}
+.nav-btn.active{color:var(--cyan)}
+.tab{display:none;padding:10px;flex-direction:column;gap:10px}
+.tab.active{display:flex}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.kpi{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:8px;text-align:center}
+.kpi-val{font-size:16px;font-weight:800;color:var(--cyan)}
+.kpi-lbl{font-size:10px;color:var(--mut);margin-top:2px}
+.gauge-wrap{display:flex;align-items:center;justify-content:space-around;gap:10px;padding:6px 0}
+.ring-svg{width:136px;height:136px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#16253b;stroke-width:11}
+.ring-fg{fill:none;stroke:url(#socGrad);stroke-width:11;stroke-linecap:round;stroke-dasharray:339.29;stroke-dashoffset:60;transition:stroke-dashoffset .5s ease}
+.ring-box{position:relative;width:136px;height:136px;display:flex;align-items:center;justify-content:center}
+.ring-txt{position:absolute;text-align:center}
+.ring-pct{font-size:26px;font-weight:900;color:#fff}
+.liq-box{width:92px;height:130px;border:2px solid var(--cyan);border-radius:14px;position:relative;overflow:hidden;background:#0a1424;box-shadow:0 0 18px rgba(0,229,255,.2)}
+.liq-cap{width:34px;height:7px;background:var(--cyan);margin:0 auto;border-radius:4px 4px 0 0}
+.liq-fill{position:absolute;bottom:0;left:0;right:0;height:82%;background:linear-gradient(180deg,#00e5ff,#00b0ff 40%,#00e676);transition:height .6s ease}
+.liq-wave{position:absolute;top:-10px;left:-50%;width:200%;height:20px;background:rgba(255,255,255,.22);border-radius:45%;animation:wave 3s linear infinite}
+@keyframes wave{0%{transform:translateX(0) rotate(0deg)}100%{transform:translateX(25%) rotate(360deg)}}
+.flow-line{stroke-dasharray:6 6;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+.radar{width:84px;height:84px;border-radius:50%;border:1px solid rgba(0,229,255,.4);position:relative;background:radial-gradient(circle,rgba(0,229,255,.15) 0%,transparent 70%);overflow:hidden;flex-shrink:0}
+.radar::before{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,rgba(0,229,255,.55),transparent 65deg);animation:spin 1.8s linear infinite;border-radius:50%}
+.radar.paused::before{animation-play-state:paused;opacity:.25}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cell-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cell-item{background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:6px 8px}
+.cell-top{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px}
+.bar-bg{height:6px;background:#0b1320;border-radius:4px;overflow:hidden}
+.bar-fg{height:100%;background:linear-gradient(90deg,#00e676,#00e5ff);transition:width .35s}
+.sw-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:6px}
+.sw{position:relative;width:44px;height:24px;background:#1d2d44;border-radius:12px;cursor:pointer;transition:.2s}
+.sw.on{background:var(--green)}
+.sw.danger.on{background:var(--red)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on::after{left:23px}
+.dev-item{display:flex;align-items:center;justify-content:space-between;padding:9px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:6px}
+.mod-card{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-top:8px}
+.out{background:#050911;border:1px solid #1a2a42;border-radius:8px;padding:8px;font-family:monospace;font-size:11px;color:#84ffff;white-space:pre-wrap;max-height:170px;overflow-y:auto;margin-top:8px}
+select,input{background:#0b1422;color:#fff;border:1px solid var(--bdr);border-radius:8px;padding:6px 8px;font-size:12px;width:100%}
+</style>
+</head
+<div id="hw-status-bar" class="hw-bar">
+  <span id="chip-bt" class="hw-chip"><span class="hw-dot"></span>BT: OFF</span>
+  <span id="chip-nearby" class="hw-chip"><span class="hw-dot"></span>NEARBY: OFF</span>
+  <span id="chip-wifi" class="hw-chip"><span class="hw-dot"></span>WIFI: OFF</span>
+  <span id="chip-hs" class="hw-chip"><span class="hw-dot"></span>HOTSPOT: OFF</span>
+  <span id="chip-gps" class="hw-chip"><span class="hw-dot"></span>GPS: OFF</span>
+  <span id="chip-otg" class="hw-chip ready"><span class="hw-dot"></span>USB-OTG: READY</span>
+</div>
+
+<div id="preflight-gate" class="gate">
+  <div class="card">
+    <div class="title">BAT-BMS Universal Pro <span class="badge">v2.0</span></div>
+    <div class="sub">Mandatory Android 13 Pre-Flight Hardware &amp; Permission Gate. Grant Nearby Devices &amp; enable Bluetooth to unlock dashboard.</div>
+    <div class="bar-bg" style="margin-top:10px;height:8px"><div id="gate-prog" class="bar-fg" style="width:0%"></div></div>
+    <div id="gate-rows">
+      <div class="gate-row"><div class="gate-info"><div class="gate-name">Bluetooth Radio (Required)</div><div id="g-bt-st" class="gate-st">Checking...</div></div><button class="btn btn-cyan" onclick="bridgeCall('enableBluetooth')">Turn ON</button></div>
+      <div class="gate-row"><div class="gate-info"><div class="gate-name">Nearby Devices (SCAN &amp; CONNECT)</div><div id="g-nb-st" class="gate-st">Checking...</div></div><button class="btn btn-cyan" onclick="bridgeCall('requestNearbyPermissions')">Grant</button></div>
+      <div class="gate-row"><div class="gate-info"><div class="gate-name">Location / GPS</div><div id="g-gps-st" class="gate-st">Checking...</div></div><button class="btn btn-dark" onclick="bridgeCall('openLocationSettings')">Turn ON</button></div>
+      <div class="gate-row"><div class="gate-info"><div class="gate-name">Wi-Fi Adapter</div><div id="g-wifi-st" class="gate-st">Checking...</div></div><button class="btn btn-dark" onclick="bridgeCall('openWifiSettings')">Settings</button></div>
+      <div class="gate-row"><div class="gate-info"><div class="gate-name">Mobile Hotspot</div><div id="g-hs-st" class="gate-st">Checking...</div></div><button class="btn btn-dark" onclick="bridgeCall('openHotspotSettings')">Settings</button></div>
+    </div>
+    <button id="enter-btn" class="btn btn-green" style="width:100%;margin-top:12px;padding:12px" disabled onclick="enterDashboard()">LOCKED - ENABLE BLUETOOTH &amp; NEARBY</button>
+  </div>
+</div>
+
+<div id="tab-dash" class="tab active">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <div class="title" style="font-size:14px">BAT-BMS Live Telemetry <span id="conn-badge" class="badge">SIMULATED</span></div>
+      <select id="pack-sel" style="width:auto;max-width:145px" onchange="switchPack(this.value)">
+        <option value="0">Pack #1 (16S 48V)</option>
+        <option value="1">Pack #2 (16S 60V)</option>
+        <option value="2">Pack #3 (Live BLE)</option>
+      </select>
+    </div>
+    <div class="gauge-wrap">
+      <div class="ring-box">
+        <svg class="ring-svg" viewBox="0 0 120 120">
+          <defs><linearGradient id="socGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00e5ff"/></linearGradient></defs>
+          <circle class="ring-bg" cx="60" cy="60" r="54"/>
+          <circle id="soc-ring" class="ring-fg" cx="60" cy="60" r="54"/>
+        </svg>
+        <div class="ring-txt"><div id="soc-pct" class="ring-pct">82%</div><div style="font-size:10px;color:var(--mut)">SOC</div></div>
+      </div>
+      <div>
+        <div class="liq-cap"></div>
+        <div class="liq-box"><div id="liq-fill" class="liq-fill"><div class="liq-wave"></div></div></div>
+      </div>
+    </div>
+    <div class="grid4">
+      <div class="kpi"><div id="k-volt" class="kpi-val">53.4V</div><div class="kpi-lbl">Pack Volt</div></div>
+      <div class="kpi"><div id="k-curr" class="kpi-val">+18.5A</div><div class="kpi-lbl">Current</div></div>
+      <div class="kpi"><div id="k-pwr" class="kpi-val">988W</div><div class="kpi-lbl">Power</div></div>
+      <div class="kpi"><div id="k-cyc" class="kpi-val">142</div><div class="kpi-lbl">Cycles</div></div>
+    </div>
+    <div class="grid3" style="margin-top:8px">
+      <div class="kpi"><div id="k-hi" class="kpi-val" style="color:var(--green)">3.348V</div><div class="kpi-lbl">Highest Cell</div></div>
+      <div class="kpi"><div id="k-lo" class="kpi-val" style="color:var(--amber)">3.331V</div><div class="kpi-lbl">Lowest Cell</div></div>
+      <div class="kpi"><div id="k-dv" class="kpi-val">17mV</div><div class="kpi-lbl">Delta</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title" style="font-size:13px">Energy Flow Diagram (60fps)</div>
+    <svg viewBox="0 0 340 74" style="width:100%;height:74px;margin-top:6px">
+      <rect x="4" y="18" width="54" height="36" rx="7" fill="#131f33" stroke="#00e5ff"/>
+      <text x="31" y="39" fill="#fff" font-size="9" text-anchor="middle" font-weight="700">CHARGER</text>
+      <line id="fl-chg" class="flow-line" x1="58" y1="36" x2="88" y2="36" stroke="#00e676" stroke-width="3"/>
+      <rect x="88" y="18" width="52" height="36" rx="7" fill="#131f33" stroke="#00e676"/>
+      <text x="114" y="34" fill="#00e676" font-size="8" text-anchor="middle" font-weight="700">CHG MOS</text>
+      <text id="svg-cmos" x="114" y="45" fill="#fff" font-size="8" text-anchor="middle">ON</text>
+      <line class="flow-line" x1="140" y1="36" x2="162" y2="36" stroke="#00e5ff" stroke-width="3"/>
+      <rect x="162" y="12" width="60" height="48" rx="8" fill="#0f2847" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="192" y="33" fill="#00e5ff" font-size="9" text-anchor="middle" font-weight="800">16S PACK</text>
+      <text id="svg-pack" x="192" y="46" fill="#fff" font-size="8" text-anchor="middle">53.4V</text>
+      <line class="flow-line" x1="222" y1="36" x2="244" y2="36" stroke="#00e5ff" stroke-width="3"/>
+      <rect x="244" y="18" width="52" height="36" rx="7" fill="#131f33" stroke="#ffab00"/>
+      <text x="270" y="34" fill="#ffab00" font-size="8" text-anchor="middle" font-weight="700">DSG MOS</text>
+      <text id="svg-dmos" x="270" y="45" fill="#fff" font-size="8" text-anchor="middle">ON</text>
+      <line id="fl-dsg" class="flow-line" x1="296" y1="36" x2="314" y2="36" stroke="#ffab00" stroke-width="3"/>
+      <rect x="314" y="18" width="24" height="36" rx="5" fill="#131f33" stroke="#ffab00"/>
+      <text x="326" y="39" fill="#fff" font-size="7" text-anchor="middle" font-weight="700">LOAD</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <div class="title" style="font-size:13px">4x Temperature Sensors</div>
+    <div class="grid4" style="margin-top:6px">
+      <div class="kpi"><div id="t1" class="kpi-val" style="font-size:13px">31.4°C</div><div class="kpi-lbl">T1 MOS</div></div>
+      <div class="kpi"><div id="t2" class="kpi-val" style="font-size:13px">28.9°C</div><div class="kpi-lbl">T2 Cell-A</div></div>
+      <div class="kpi"><div id="t3" class="kpi-val" style="font-size:13px">29.2°C</div><div class="kpi-lbl">T3 Cell-B</div></div>
+      <div class="kpi"><div id="t4" class="kpi-val" style="font-size:13px">26.5°C</div><div class="kpi-lbl">T4 Amb</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title" style="font-size:13px">MOSFET &amp; Protection Controls</div>
+    <div class="sw-row"><span>Charge MOS</span><div id="sw-chg" class="sw on" onclick="toggleSw('chg')"></div></div>
+    <div class="sw-row"><span>Discharge MOS</span><div id="sw-dsg" class="sw on" onclick="toggleSw('dsg')"></div></div>
+    <div class="sw-row"><span>Active Balance</span><div id="sw-bal" class="sw on" onclick="toggleSw('bal')"></div></div>
+    <div class="sw-row"><span>Maintenance Mode</span><div id="sw-mnt" class="sw" onclick="toggleSw('mnt')"></div></div>
+    <div class="sw-row"><span style="color:var(--red);font-weight:700">Emergency Cut-Off</span><div id="sw-emg" class="sw danger" onclick="toggleSw('emg')"></div></div>
+  </div>
+</div>
+
+<div id="tab-cells" class="tab">
+  <div class="card">
+    <div class="title" style="font-size:14px">16S Lithium Per-Cell Monitor</div>
+    <div class="sub">Real-time cell balancing &amp; voltage spread</div>
+    <div id="cell-grid" class="cell-grid" style="margin-top:8px"></div>
+  </div>
+</div>>
+<div id="tab-scan" class="tab">
+  <div class="card" style="display:flex;align-items:center;gap:12px">
+    <div id="radar" class="radar paused"></div>
+    <div style="flex:1">
+      <div class="title" style="font-size:14px">BLE Radar Scanner</div>
+      <div id="scan-st" class="sub">Idle. Tap Scan to discover nearby BMS &amp; devices.</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-cyan" onclick="startScan()">Scan Nearby</button>
+        <button class="btn btn-dark" onclick="stopScan()">Stop</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="title" style="font-size:13px;color:var(--green)">1. Dedicated Battery BMS Controllers <span id="bms-cnt" class="badge">0</span></div>
+    <div class="sub">BAT-BMS, JK-BMS, JBD/Xiaoxiang, Daly, ANT, PACE, Seplos, BLE-UART</div>
+    <div id="bms-list"></div>
+  </div>
+  <div class="card">
+    <div class="title" style="font-size:13px;color:var(--mut)">2. Other Nearby Bluetooth Devices <span id="oth-cnt" class="badge">0</span></div>
+    <div class="sub">Non-BMS devices (earbuds, headphones, watches, TV, phones)</div>
+    <div id="oth-list"></div>
+  </div>
+</div>
+
+<div id="tab-pro" class="tab">
+  <div class="card">
+    <div class="title" style="font-size:14px">7 Universal BMS Pro Modules</div>
+    <div class="mod-card"><b>1. Hidden BMS Detection &amp; 8-Point Diagnostic Workflow</b><div class="sub">Probes silent/sleep BLE advertisements &amp; 8-point hardware checks.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(1)">Run 8-Point Probe</button></div>
+    <div class="mod-card"><b>2. Smart BMS Wake-Up &amp; Recovery Assistant</b><div class="sub">CC/CV pre-charge calculator &amp; zero-volt wake-up safety warnings.</div><div class="grid2" style="margin-top:6px"><input id="wu-s" type="number" value="16" placeholder="Series S"><input id="wu-ah" type="number" value="100" placeholder="Pack Ah"></div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(2)">Calculate CC/CV &amp; Wake</button></div>
+    <div class="mod-card"><b>3. Universal Auth Manager</b><div class="sub">PIN, 16-byte Key &amp; Challenge-Response session manager.</div><div style="display:flex;gap:6px;margin-top:6px"><input id="auth-pin" value="1234" placeholder="BMS PIN"><button class="btn btn-cyan" onclick="runMod(3)">Authenticate</button></div></div>
+    <div class="mod-card"><b>4. 10-Mode Smart Auth Diagnostics</b><div class="sub">Tests JK, JBD, Daly, ANT, PACE, Seplos, Modbus, CAN-BLE &amp; UART auth modes.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(4)">Run 10-Mode Scan</button></div>
+    <div class="mod-card"><b>5. 8-Step Technician Authorized Device Recovery</b><div class="sub">Guided MOSFET reset, EEPROM backup &amp; cell calibration recovery.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(5)">Execute 8-Step Recovery</button></div>
+    <div class="mod-card"><b>6. Intelligent Discovery Decision Engine</b><div class="sub">Auto-classifies BMS vs non-BMS OUI, UUID &amp; payload signatures.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(6)">Run Decision Engine</button></div>
+    <div class="mod-card"><b>7. Protocol Laboratory</b><div class="sub">Raw Hex Frame Builder &amp; CRC16/Checksum Inspector.</div><div style="display:flex;gap:6px;margin-top:6px"><select id="proto-sel"><option>JK-BMS (4E 57)</option><option>JBD/Xiaoxiang (DD A5)</option><option>Daly Smart (A5 40)</option><option>ANT-BMS (AA 55)</option><option>PACE / Seplos (7E)</option></select><button class="btn btn-cyan" onclick="runMod(7)">Build Frame</button></div></div>
+    <div id="pro-out" class="out">Ready. Select any module above to execute.</div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="openTab('dash',this)"><span>⚡</span>Dashboard</button>
+  <button class="nav-btn" onclick="openTab('cells',this)"><span>🔋</span>16S Cells</button>
+  <button class="nav-btn" onclick="openTab('scan',this)"><span>📡</span>BLE Scan</button>
+  <button class="nav-btn" onclick="openTab('pro',this)"><span>🛠️</span>7 Pro Mods</button>
+</div>
+
+<script>
+const hasBridge=typeof window.BmsBridge!=='undefined';
+let gateUnlocked=false,activePack=0;
+const swState={chg:true,dsg:true,bal:true,mnt:false,emg:false};
+const packs=[
+  {name:'Pack #1 (16S 48V)',soc:82,v:53.4,a:18.5,cyc:142,t:[31.4,28.9,29.2,26.5],cells:[3.342,3.338,3.345,3.339,3.341,3.335,3.348,3.337,3.340,3.331,3.344,3.339,3.343,3.336,3.341,3.338]},
+  {name:'Pack #2 (16S 60V)',soc:64,v:60.8,a:-12.4,cyc:89,t:[33.1,30.2,30.5,27.0],cells:[3.802,3.798,3.805,3.799,3.801,3.794,3.810,3.796,3.800,3.791,3.804,3.799,3.803,3.795,3.801,3.797]},
+  {name:'Pack #3 (Live BLE)',soc:91,v:54.1,a:5.2,cyc:37,t:[29.0,27.4,27.6,25.8],cells:[3.381,3.380,3.382,3.379,3.381,3.378,3.384,3.380,3.381,3.377,3.382,3.380,3.381,3.379,3.382,3.380]}
+];
+function bridgeCall(m,a){if(hasBridge&&typeof BmsBridge[m]==='function'){return a!==undefined?BmsBridge[m](a):BmsBridge[m]();}return null;}
+function updateHwStatus(raw){
+  try{
+    const s=typeof raw==='string'?JSON.parse(raw):raw;
+    setChip('chip-bt','BT',s.bt);setChip('chip-nearby','NEARBY',s.nearby);
+    setChip('chip-wifi','WIFI',s.wifi);setChip('chip-hs','HOTSPOT',s.hotspot);
+    setChip('chip-gps','GPS',s.gps);
+    const otg=document.getElementById('chip-otg');
+    otg.className='hw-chip '+(s.otg?'on':'ready');
+    otg.innerHTML='<span class="hw-dot"></span>USB-OTG: '+(s.otg?'CONNECTED':'READY');
+    document.getElementById('g-bt-st').textContent=s.bt?'ON (Ready)':'OFF - Required to scan BMS';
+    document.getElementById('g-nb-st').textContent=s.nearby?'GRANTED':'NOT GRANTED - Required on Android 13';
+    document.getElementById('g-gps-st').textContent=s.gps?'ON':'OFF (Optional for BLE scan)';
+    document.getElementById('g-wifi-st').textContent=s.wifi?'ON':'OFF';
+    document.getElementById('g-hs-st').textContent=s.hotspot?'ON':'OFF';
+    const score=(s.bt?40:0)+(s.nearby?40:0)+(s.gps?10:0)+(s.wifi?10:0);
+    document.getElementById('gate-prog').style.width=score+'%';
+    const eb=document.getElementById('enter-btn');
+    if(s.bt&&s.nearby){eb.disabled=false;eb.textContent='ENTER BAT-BMS DASHBOARD';}
+    else{eb.disabled=true;eb.textContent='LOCKED - ENABLE BLUETOOTH & NEARBY';}
+  }catch(e){}
+}
+function setChip(id,lbl,on){const el=document.getElementById(id);el.className='hw-chip'+(on?' on':'');el.innerHTML='<span class="hw-dot"></span>'+lbl+': '+(on?'ON':'OFF');}
+function enterDashboard(){document.getElementById('preflight-gate').classList.add('hidden');gateUnlocked=true;}
+function openTab(id,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function switchPack(idx){activePack=parseInt(idx,10);renderPack();}
+function renderPack(){
+  const p=packs[activePack];
+  document.getElementById('soc-pct').textContent=p.soc+'%';
+  document.getElementById('soc-ring').style.strokeDashoffset=339.29*(1-p.soc/100);
+  document.getElementById('liq-fill').style.height=p.soc+'%';
+  document.getElementById('k-volt').textContent=p.v.toFixed(1)+'V';
+  document.getElementById('k-curr').textContent=(p.a>=0?'+':'')+p.a.toFixed(1)+'A';
+  document.getElementById('k-pwr').textContent=Math.round(p.v*Math.abs(p.a))+'W';
+  document.getElementById('k-cyc').textContent=p.cyc;
+  document.getElementById('svg-pack').textContent=p.v.toFixed(1)+'V';
+  const hi=Math.max(...p.cells),lo=Math.min(...p.cells),dv=Math.round((hi-lo)*1000);
+  document.getElementById('k-hi').textContent=hi.toFixed(3)+'V';
+  document.getElementById('k-lo').textContent=lo.toFixed(3)+'V';
+  document.getElementById('k-dv').textContent=dv+'mV';
+  p.t.forEach((v,i)=>document.getElementById('t'+(i+1)).textContent=v.toFixed(1)+'°C');
+  let html='';
+  p.cells.forEach((c,i)=>{
+    const pct=Math.max(5,Math.min(100,((c-2.8)/1.4)*100));
+    html+='<div class="cell-item"><div class="cell-top"><span>C'+(i+1<10?'0':'')+(i+1)+(c===hi?' ▲':c===lo?' ▼':'')+'</span><span style="color:var(--cyan)">'+c.toFixed(3)+'V</span></div><div class="bar-bg"><div class="bar-fg" style="width:'+pct+'%"></div></div></div>';
+  });
+  document.getElementById('cell-grid').innerHTML=html;
+}
+function toggleSw(k){
+  swState[k]=!swState[k];
+  if(k==='emg'&&swState.emg){swState.chg=false;swState.dsg=false;}
+  ['chg','dsg','bal','mnt','emg'].forEach(x=>{
+    const el=document.getElementById('sw-'+x);
+    el.className='sw'+(x==='emg'?' danger':'')+(swState[x]?' on':'');
+  });
+  document.getElementById('svg-cmos').textContent=swState.chg?'ON':'OFF';
+  document.getElementById('svg-dmos').textContent=swState.dsg?'ON':'OFF';
+  document.getElementById('fl-chg').style.opacity=swState.chg?'1':'0.15';
+  document.getElementById('fl-dsg').style.opacity=swState.dsg?'1':'0.15';
+  bridgeCall('setControlSwitch',JSON.stringify({key:k,val:swState[k]}));
+}
+function startScan(){
+  document.getElementById('radar').classList.remove('paused');
+  document.getElementById('scan-st').textContent='Scanning BLE 5.0 (Strict BMS vs Other separation)...';
+  bridgeCall('startBleScan');
+}
+function stopScan(){
+  document.getElementById('radar').classList.add('paused');
+  document.getElementById('scan-st').textContent='Scan stopped.';
+  bridgeCall('stopBleScan');
+}
+function onScanResults(raw){
+  try{
+    const d=typeof raw==='string'?JSON.parse(raw):raw;
+    const bms=d.bms||[],oth=d.other||[];
+    document.getElementById('bms-cnt').textContent=bms.length;
+    document.getElementById('oth-cnt').textContent=oth.length;
+    document.getElementById('bms-list').innerHTML=bms.length?bms.map(x=>'<div class="dev-item"><div><b>🔋 '+x.name+'</b><div class="sub">'+x.mac+' • '+x.proto+' • '+x.rssi+' dBm</div></div><button class="btn btn-green" onclick="connectBms(\''+x.mac+'\',\''+x.name+'\')">Connect BMS</button></div>').join(''):'<div class="sub" style="margin-top:6px">No BMS controllers found yet.</div>';
+    document.getElementById('oth-list').innerHTML=oth.length?oth.map(x=>'<div class="dev-item"><div><b>🎧 '+x.name+'</b><div class="sub">'+x.mac+' • Non-BMS • '+x.rssi+' dBm</div></div><span class="badge">IGNORED</span></div>').join(''):'<div class="sub" style="margin-top:6px">No other devices found.</div>';
+  }catch(e){}
+}
+function connectBms(mac,name){
+  document.getElementById('conn-badge').textContent='LINKING '+name;
+  bridgeCall('connectBms',mac);
+}
+function onBmsConnected(name){
+  document.getElementById('conn-badge').textContent='LIVE: '+name;
+  document.getElementById('pack-sel').value='2';
+  switchPack(2);
+  openTab('dash',document.querySelector('.nav-btn'));
+}
+function runMod(id){
+  const param=id===2?document.getElementById('wu-s').value+','+document.getElementById('wu-ah').value:id===3?document.getElementById('auth-pin').value:id===7?document.getElementById('proto-sel').value:'';
+  const res=bridgeCall('runProModule',id+'|'+param);
+  document.getElementById('pro-out').textContent=res||('Module #'+id+' executed locally.');
+}
+setInterval(()=>{const raw=bridgeCall('getHardwareStatus');if(raw)updateHwStatus(raw);},1500);
+renderPack();
+if(!hasBridge){updateHwStatus({bt:true,nearby:true,wifi:true,hotspot:false,gps:true,otg:false});}
+</script>
+</body>
+</html>
+<body>
