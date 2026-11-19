@@ -3,347 +3,570 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>BAT-BMS Universal Pro v2.0</title>
+<title>Universal BMS Pro v3.0</title>
 <style>
-:root{--bg:#060b14;--card:#0e1726;--card2:#131f33;--bdr:#1e304d;--cyan:#00e5ff;--green:#00e676;--amber:#ffab00;--red:#ff3d71;--blue:#2979ff;--txt:#e6f1ff;--mut:#7c93b0}
+:root{--bg:#060b14;--card:#0e1726;--card2:#131f33;--bdr:#1e304d;--cyan:#00e5ff;--green:#00e676;--amber:#ffab00;--red:#ff3d71;--txt:#e8f1ff;--mut:#7d93b2}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px;overflow-x:hidden;padding-bottom:68px}
-.hw-bar{position:sticky;top:0;z-index:99;background:rgba(6,11,20,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bdr);padding:6px 8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:space-between}
-.hw-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:12px;font-size:10px;font-weight:700;background:#111c2d;border:1px solid var(--bdr);letter-spacing:.3px}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding-bottom:24px}
+.lp-target{user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.hw-bar{position:sticky;top:0;z-index:99;background:rgba(6,11,20,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bdr);padding:6px 10px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.hw-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:12px;font-size:10px;font-weight:700;background:var(--card2);border:1px solid var(--bdr);color:var(--mut);cursor:pointer}
 .hw-dot{width:6px;height:6px;border-radius:50%;background:var(--red)}
 .hw-chip.on .hw-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
 .hw-chip.on{border-color:rgba(0,230,118,.35);color:#b9f6ca}
 .hw-chip.ready .hw-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
 .hw-chip.ready{border-color:rgba(0,229,255,.35);color:#84ffff}
-.gate{position:fixed;inset:0;top:36px;z-index:90;background:radial-gradient(circle at 50% 10%,#0f223d,#060b14 70%);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.gate{position:fixed;inset:0;top:36px;z-index:90;background:radial-gradient(circle at 50% 10%,#0f223d,#060b14 70%);padding:16px;overflow-y:auto}
 .gate.hidden{display:none}
-.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
-.title{font-size:16px;font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:8px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.title{font-size:15px;font-weight:800;letter-spacing:.3px;display:flex;align-items:center;gap:8px}
 .badge{font-size:10px;padding:2px 7px;border-radius:8px;background:rgba(0,229,255,.15);color:var(--cyan);border:1px solid rgba(0,229,255,.3)}
+.badge.warn{background:rgba(255,171,0,.15);color:var(--amber);border-color:rgba(255,171,0,.35)}
+.badge.ok{background:rgba(0,230,118,.15);color:var(--green);border-color:rgba(0,230,118,.35)}
 .sub{color:var(--mut);font-size:11px;margin-top:3px}
 .gate-row{display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:8px}
 .gate-info{display:flex;flex-direction:column;gap:2px}
 .gate-name{font-weight:700;font-size:13px}
 .gate-st{font-size:11px;color:var(--mut)}
-.btn{border:none;border-radius:9px;padding:8px 12px;font-weight:700;font-size:11px;cursor:pointer;transition:transform .15s}
+.btn{border:none;border-radius:9px;padding:8px 12px;font-weight:700;font-size:11px;cursor:pointer;transition:transform .1s}
 .btn:active{transform:scale(.96)}
 .btn-cyan{background:linear-gradient(135deg,#00e5ff,#2979ff);color:#04101f}
 .btn-green{background:linear-gradient(135deg,#00e676,#00b248);color:#031a0c}
 .btn-red{background:linear-gradient(135deg,#ff3d71,#d50032);color:#fff}
 .btn-dark{background:#16243a;color:var(--txt);border:1px solid var(--bdr)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:80;background:#0a1220;border-top:1px solid var(--bdr);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 4px}
-.nav-btn{background:none;border:none;color:var(--mut);font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;cursor:pointer}
-.nav-btn.active{color:var(--cyan)}
-.tab{display:none;padding:10px;flex-direction:column;gap:10px}
-.tab.active{display:flex}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.kpi{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:8px;text-align:center}
-.kpi-val{font-size:16px;font-weight:800;color:var(--cyan)}
-.kpi-lbl{font-size:10px;color:var(--mut);margin-top:2px}
-.gauge-wrap{display:flex;align-items:center;justify-content:space-around;gap:10px;padding:6px 0}
-.ring-svg{width:136px;height:136px;transform:rotate(-90deg)}
-.ring-bg{fill:none;stroke:#16253b;stroke-width:11}
-.ring-fg{fill:none;stroke:url(#socGrad);stroke-width:11;stroke-linecap:round;stroke-dasharray:339.29;stroke-dashoffset:60;transition:stroke-dashoffset .5s ease}
-.ring-box{position:relative;width:136px;height:136px;display:flex;align-items:center;justify-content:center}
-.ring-txt{position:absolute;text-align:center}
-.ring-pct{font-size:26px;font-weight:900;color:#fff}
-.liq-box{width:92px;height:130px;border:2px solid var(--cyan);border-radius:14px;position:relative;overflow:hidden;background:#0a1424;box-shadow:0 0 18px rgba(0,229,255,.2)}
-.liq-cap{width:34px;height:7px;background:var(--cyan);margin:0 auto;border-radius:4px 4px 0 0}
-.liq-fill{position:absolute;bottom:0;left:0;right:0;height:82%;background:linear-gradient(180deg,#00e5ff,#00b0ff 40%,#00e676);transition:height .6s ease}
-.liq-wave{position:absolute;top:-10px;left:-50%;width:200%;height:20px;background:rgba(255,255,255,.22);border-radius:45%;animation:wave 3s linear infinite}
-@keyframes wave{0%{transform:translateX(0) rotate(0deg)}100%{transform:translateX(25%) rotate(360deg)}}
-.flow-line{stroke-dasharray:6 6;animation:flow 1s linear infinite}
-@keyframes flow{to{stroke-dashoffset:-24}}
-.radar{width:84px;height:84px;border-radius:50%;border:1px solid rgba(0,229,255,.4);position:relative;background:radial-gradient(circle,rgba(0,229,255,.15) 0%,transparent 70%);overflow:hidden;flex-shrink:0}
-.radar::before{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,rgba(0,229,255,.55),transparent 65deg);animation:spin 1.8s linear infinite;border-radius:50%}
-.radar.paused::before{animation-play-state:paused;opacity:.25}
-@keyframes spin{to{transform:rotate(360deg)}}
-.cell-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.cell-item{background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:6px 8px}
-.cell-top{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px}
-.bar-bg{height:6px;background:#0b1320;border-radius:4px;overflow:hidden}
-.bar-fg{height:100%;background:linear-gradient(90deg,#00e676,#00e5ff);transition:width .35s}
-.sw-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:6px}
-.sw{position:relative;width:44px;height:24px;background:#1d2d44;border-radius:12px;cursor:pointer;transition:.2s}
-.sw.on{background:var(--green)}
-.sw.danger.on{background:var(--red)}
-.sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
-.sw.on::after{left:23px}
-.dev-item{display:flex;align-items:center;justify-content:space-between;padding:9px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:6px}
-.mod-card{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-top:8px}
-.out{background:#050911;border:1px solid #1a2a42;border-radius:8px;padding:8px;font-family:monospace;font-size:11px;color:#84ffff;white-space:pre-wrap;max-height:170px;overflow-y:auto;margin-top:8px}
-select,input{background:#0b1422;color:#fff;border:1px solid var(--bdr);border-radius:8px;padding:6px 8px;font-size:12px;width:100%}
+.btn.disabled{opacity:.4;cursor:not-allowed}
+.hdr{padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.sel{background:var(--card2);color:var(--txt);border:1px solid var(--bdr);border-radius:8px;padding:6px 8px;font-size:11px;font-weight:600}
+.tabs{display:flex;gap:6px;padding:0 12px 10px;overflow-x:auto}
+.tab{flex:1;min-width:68px;text-align:center;padding:8px 6px;border-radius:10px;font-size:11px;font-weight:700;background:var(--card);border:1px solid var(--bdr);color:var(--mut);cursor:pointer;white-space:nowrap}
+.tab.active{background:rgba(0,229,255,.15);color:var(--cyan);border-color:var(--cyan)}
+.page{display:none;padding:0 12px}
+.page.active{display:block}
+.soc-box{display:flex;align-items:center;gap:14px}
+.ring{position:relative;width:88px;height:88px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:19px;font-weight:800}
+.ring-lbl{font-size:9px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.kpi{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:9px}
+.kpi-l{font-size:10px;color:var(--mut)}
+.kpi-v{font-size:15px;font-weight:800;margin-top:2px}
+.cells{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.cell{background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:6px;text-align:center}
+.cell-n{font-size:9px;color:var(--mut)}
+.cell-v{font-size:12px;font-weight:700;margin-top:2px}
+.dev-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:8px;gap:8px}
+.sw-row{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;margin-top:8px}
+.switch{width:46px;height:26px;border-radius:13px;background:#243552;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.switch.on{background:var(--green)}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on::after{left:23px}
+.mod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.mod-card{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px;cursor:pointer}
+.mod-t{font-size:12px;font-weight:700;color:var(--cyan)}
+.mod-d{font-size:10px;color:var(--mut);margin-top:3px}
+.empty{padding:14px;text-align:center;color:var(--mut);font-size:11px;background:var(--card2);border:1px dashed var(--bdr);border-radius:10px;margin-top:8px}
+.lp-hud{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(10,18,34,.96);border:1px solid var(--cyan);border-radius:14px;padding:10px 16px;min-width:230px;box-shadow:0 8px 28px rgba(0,0,0,.6);display:none;text-align:center}
+.lp-hud.show{display:block}
+.lp-bar{height:5px;background:#1c2d4a;border-radius:3px;overflow:hidden;margin-top:6px}
+.lp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .08s linear}
+.modal-bg{position:fixed;inset:0;z-index:210;background:rgba(3,7,14,.82);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--cyan);border-radius:16px;padding:16px;max-width:420px;width:100%;box-shadow:0 12px 36px rgba(0,0,0,.7)}
+.modal-h{font-size:15px;font-weight:800;color:var(--cyan);margin-bottom:8px}
+.modal-sec{font-size:11px;font-weight:700;color:var(--green);margin-top:10px;text-transform:uppercase}
+.modal-p{font-size:12px;color:var(--txt);line-height:1.45;margin-top:3px}
+.inp{width:100%;background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:9px 10px;color:var(--txt);font-size:13px;margin-top:8px}
 </style>
-</head
-<div id="hw-status-bar" class="hw-bar">
-  <span id="chip-bt" class="hw-chip"><span class="hw-dot"></span>BT: OFF</span>
-  <span id="chip-nearby" class="hw-chip"><span class="hw-dot"></span>NEARBY: OFF</span>
-  <span id="chip-wifi" class="hw-chip"><span class="hw-dot"></span>WIFI: OFF</span>
-  <span id="chip-hs" class="hw-chip"><span class="hw-dot"></span>HOTSPOT: OFF</span>
-  <span id="chip-gps" class="hw-chip"><span class="hw-dot"></span>GPS: OFF</span>
-  <span id="chip-otg" class="hw-chip ready"><span class="hw-dot"></span>USB-OTG: READY</span>
+</head>
+  <body>
+<div class="hw-bar" id="hw-status-bar">
+<div class="hw-chip lp-target" id="hc-bt" data-help="hw_bt" onclick="openHwSetting('bt')"><span class="hw-dot"></span>BT</div>
+<div class="hw-chip lp-target" id="hc-nearby" data-help="hw_nearby" onclick="openHwSetting('nearby')"><span class="hw-dot"></span>NEARBY</div>
+<div class="hw-chip lp-target" id="hc-wifi" data-help="hw_wifi" onclick="openHwSetting('wifi')"><span class="hw-dot"></span>WIFI</div>
+<div class="hw-chip lp-target" id="hc-hot" data-help="hw_hot" onclick="openHwSetting('hot')"><span class="hw-dot"></span>HOTSPOT</div>
+<div class="hw-chip lp-target" id="hc-gps" data-help="hw_gps" onclick="openHwSetting('gps')"><span class="hw-dot"></span>GPS</div>
+<div class="hw-chip lp-target" id="hc-otg" data-help="hw_otg" onclick="startScan()"><span class="hw-dot"></span>USB-OTG</div>
 </div>
 
-<div id="preflight-gate" class="gate">
-  <div class="card">
-    <div class="title">BAT-BMS Universal Pro <span class="badge">v2.0</span></div>
-    <div class="sub">Mandatory Android 13 Pre-Flight Hardware &amp; Permission Gate. Grant Nearby Devices &amp; enable Bluetooth to unlock dashboard.</div>
-    <div class="bar-bg" style="margin-top:10px;height:8px"><div id="gate-prog" class="bar-fg" style="width:0%"></div></div>
-    <div id="gate-rows">
-      <div class="gate-row"><div class="gate-info"><div class="gate-name">Bluetooth Radio (Required)</div><div id="g-bt-st" class="gate-st">Checking...</div></div><button class="btn btn-cyan" onclick="bridgeCall('enableBluetooth')">Turn ON</button></div>
-      <div class="gate-row"><div class="gate-info"><div class="gate-name">Nearby Devices (SCAN &amp; CONNECT)</div><div id="g-nb-st" class="gate-st">Checking...</div></div><button class="btn btn-cyan" onclick="bridgeCall('requestNearbyPermissions')">Grant</button></div>
-      <div class="gate-row"><div class="gate-info"><div class="gate-name">Location / GPS</div><div id="g-gps-st" class="gate-st">Checking...</div></div><button class="btn btn-dark" onclick="bridgeCall('openLocationSettings')">Turn ON</button></div>
-      <div class="gate-row"><div class="gate-info"><div class="gate-name">Wi-Fi Adapter</div><div id="g-wifi-st" class="gate-st">Checking...</div></div><button class="btn btn-dark" onclick="bridgeCall('openWifiSettings')">Settings</button></div>
-      <div class="gate-row"><div class="gate-info"><div class="gate-name">Mobile Hotspot</div><div id="g-hs-st" class="gate-st">Checking...</div></div><button class="btn btn-dark" onclick="bridgeCall('openHotspotSettings')">Settings</button></div>
-    </div>
-    <button id="enter-btn" class="btn btn-green" style="width:100%;margin-top:12px;padding:12px" disabled onclick="enterDashboard()">LOCKED - ENABLE BLUETOOTH &amp; NEARBY</button>
-  </div>
+<div class="gate" id="preflight-gate">
+<div class="card">
+<div class="title">Universal BMS Pro <span class="badge">v3.0</span></div>
+<div class="sub">Startup Hardware Gate — Verify phone radios &amp; permissions before scanning real BMS hardware. Hold any item 5s for Help.</div>
+<div class="gate-row lp-target" data-help="gate_bt"><div class="gate-info"><div class="gate-name">Bluetooth Radio</div><div class="gate-st" id="gs-bt">Checking...</div></div><button class="btn btn-dark lp-target" data-help="gate_bt" onclick="openHwSetting('bt')">Settings</button></div>
+<div class="gate-row lp-target" data-help="gate_nearby"><div class="gate-info"><div class="gate-name">Nearby Devices Permission</div><div class="gate-st" id="gs-nearby">Checking...</div></div><button class="btn btn-cyan lp-target" data-help="gate_nearby" onclick="reqPerms()">Allow</button></div>
+<div class="gate-row lp-target" data-help="gate_gps"><div class="gate-info"><div class="gate-name">Location / BLE Scan</div><div class="gate-st" id="gs-gps">Checking...</div></div><button class="btn btn-dark lp-target" data-help="gate_gps" onclick="openHwSetting('gps')">Enable</button></div>
+<div class="gate-row lp-target" data-help="gate_wifi"><div class="gate-info"><div class="gate-name">Wi-Fi Adapter</div><div class="gate-st" id="gs-wifi">Checking...</div></div><button class="btn btn-dark lp-target" data-help="gate_wifi" onclick="openHwSetting('wifi')">Settings</button></div>
+<div class="gate-row lp-target" data-help="gate_hot"><div class="gate-info"><div class="gate-name">Mobile Hotspot</div><div class="gate-st" id="gs-hot">Checking...</div></div><button class="btn btn-dark lp-target" data-help="gate_hot" onclick="openHwSetting('hot')">Settings</button></div>
+<div class="gate-row lp-target" data-help="gate_otg"><div class="gate-info"><div class="gate-name">USB-OTG Serial</div><div class="gate-st" id="gs-otg">Checking...</div></div><span class="badge" id="gb-otg">AUTO</span></div>
+<div style="display:flex;gap:8px;margin-top:12px">
+<button class="btn btn-dark lp-target" style="flex:1" data-help="btn_recheck" onclick="refreshGate()">Recheck Hardware</button>
+<button class="btn btn-green lp-target" style="flex:1" id="btn-enter" data-help="btn_enter" onclick="enterDashboard()">Enter Dashboard</button>
+</div>
+</div>
 </div>
 
-<div id="tab-dash" class="tab active">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <div class="title" style="font-size:14px">BAT-BMS Live Telemetry <span id="conn-badge" class="badge">SIMULATED</span></div>
-      <select id="pack-sel" style="width:auto;max-width:145px" onchange="switchPack(this.value)">
-        <option value="0">Pack #1 (16S 48V)</option>
-        <option value="1">Pack #2 (16S 60V)</option>
-        <option value="2">Pack #3 (Live BLE)</option>
-      </select>
-    </div>
-    <div class="gauge-wrap">
-      <div class="ring-box">
-        <svg class="ring-svg" viewBox="0 0 120 120">
-          <defs><linearGradient id="socGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00e5ff"/></linearGradient></defs>
-          <circle class="ring-bg" cx="60" cy="60" r="54"/>
-          <circle id="soc-ring" class="ring-fg" cx="60" cy="60" r="54"/>
-        </svg>
-        <div class="ring-txt"><div id="soc-pct" class="ring-pct">82%</div><div style="font-size:10px;color:var(--mut)">SOC</div></div>
-      </div>
-      <div>
-        <div class="liq-cap"></div>
-        <div class="liq-box"><div id="liq-fill" class="liq-fill"><div class="liq-wave"></div></div></div>
-      </div>
-    </div>
-    <div class="grid4">
-      <div class="kpi"><div id="k-volt" class="kpi-val">53.4V</div><div class="kpi-lbl">Pack Volt</div></div>
-      <div class="kpi"><div id="k-curr" class="kpi-val">+18.5A</div><div class="kpi-lbl">Current</div></div>
-      <div class="kpi"><div id="k-pwr" class="kpi-val">988W</div><div class="kpi-lbl">Power</div></div>
-      <div class="kpi"><div id="k-cyc" class="kpi-val">142</div><div class="kpi-lbl">Cycles</div></div>
-    </div>
-    <div class="grid3" style="margin-top:8px">
-      <div class="kpi"><div id="k-hi" class="kpi-val" style="color:var(--green)">3.348V</div><div class="kpi-lbl">Highest Cell</div></div>
-      <div class="kpi"><div id="k-lo" class="kpi-val" style="color:var(--amber)">3.331V</div><div class="kpi-lbl">Lowest Cell</div></div>
-      <div class="kpi"><div id="k-dv" class="kpi-val">17mV</div><div class="kpi-lbl">Delta</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="title" style="font-size:13px">Energy Flow Diagram (60fps)</div>
-    <svg viewBox="0 0 340 74" style="width:100%;height:74px;margin-top:6px">
-      <rect x="4" y="18" width="54" height="36" rx="7" fill="#131f33" stroke="#00e5ff"/>
-      <text x="31" y="39" fill="#fff" font-size="9" text-anchor="middle" font-weight="700">CHARGER</text>
-      <line id="fl-chg" class="flow-line" x1="58" y1="36" x2="88" y2="36" stroke="#00e676" stroke-width="3"/>
-      <rect x="88" y="18" width="52" height="36" rx="7" fill="#131f33" stroke="#00e676"/>
-      <text x="114" y="34" fill="#00e676" font-size="8" text-anchor="middle" font-weight="700">CHG MOS</text>
-      <text id="svg-cmos" x="114" y="45" fill="#fff" font-size="8" text-anchor="middle">ON</text>
-      <line class="flow-line" x1="140" y1="36" x2="162" y2="36" stroke="#00e5ff" stroke-width="3"/>
-      <rect x="162" y="12" width="60" height="48" rx="8" fill="#0f2847" stroke="#00e5ff" stroke-width="1.5"/>
-      <text x="192" y="33" fill="#00e5ff" font-size="9" text-anchor="middle" font-weight="800">16S PACK</text>
-      <text id="svg-pack" x="192" y="46" fill="#fff" font-size="8" text-anchor="middle">53.4V</text>
-      <line class="flow-line" x1="222" y1="36" x2="244" y2="36" stroke="#00e5ff" stroke-width="3"/>
-      <rect x="244" y="18" width="52" height="36" rx="7" fill="#131f33" stroke="#ffab00"/>
-      <text x="270" y="34" fill="#ffab00" font-size="8" text-anchor="middle" font-weight="700">DSG MOS</text>
-      <text id="svg-dmos" x="270" y="45" fill="#fff" font-size="8" text-anchor="middle">ON</text>
-      <line id="fl-dsg" class="flow-line" x1="296" y1="36" x2="314" y2="36" stroke="#ffab00" stroke-width="3"/>
-      <rect x="314" y="18" width="24" height="36" rx="5" fill="#131f33" stroke="#ffab00"/>
-      <text x="326" y="39" fill="#fff" font-size="7" text-anchor="middle" font-weight="700">LOAD</text>
-    </svg>
-  </div>
-
-  <div class="card">
-    <div class="title" style="font-size:13px">4x Temperature Sensors</div>
-    <div class="grid4" style="margin-top:6px">
-      <div class="kpi"><div id="t1" class="kpi-val" style="font-size:13px">31.4°C</div><div class="kpi-lbl">T1 MOS</div></div>
-      <div class="kpi"><div id="t2" class="kpi-val" style="font-size:13px">28.9°C</div><div class="kpi-lbl">T2 Cell-A</div></div>
-      <div class="kpi"><div id="t3" class="kpi-val" style="font-size:13px">29.2°C</div><div class="kpi-lbl">T3 Cell-B</div></div>
-      <div class="kpi"><div id="t4" class="kpi-val" style="font-size:13px">26.5°C</div><div class="kpi-lbl">T4 Amb</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="title" style="font-size:13px">MOSFET &amp; Protection Controls</div>
-    <div class="sw-row"><span>Charge MOS</span><div id="sw-chg" class="sw on" onclick="toggleSw('chg')"></div></div>
-    <div class="sw-row"><span>Discharge MOS</span><div id="sw-dsg" class="sw on" onclick="toggleSw('dsg')"></div></div>
-    <div class="sw-row"><span>Active Balance</span><div id="sw-bal" class="sw on" onclick="toggleSw('bal')"></div></div>
-    <div class="sw-row"><span>Maintenance Mode</span><div id="sw-mnt" class="sw" onclick="toggleSw('mnt')"></div></div>
-    <div class="sw-row"><span style="color:var(--red);font-weight:700">Emergency Cut-Off</span><div id="sw-emg" class="sw danger" onclick="toggleSw('emg')"></div></div>
-  </div>
+<div class="hdr">
+<div>
+<div class="title">Universal BMS Pro <span class="badge">v3.0</span></div>
+<div class="sub"><span id="conn-badge">No BMS Connected</span></div>
+</div>
+<div style="display:flex;gap:6px;align-items:center">
+<select class="sel lp-target" id="pack-sel" data-help="pack_sel" onchange="selectPack(this.value)"><option value="">No BMS Connected</option></select>
+<button class="btn btn-red lp-target" id="btn-disc" style="display:none" data-help="btn_disc" onclick="disconnectBms()">Disconnect</button>
+</div>
 </div>
 
-<div id="tab-cells" class="tab">
-  <div class="card">
-    <div class="title" style="font-size:14px">16S Lithium Per-Cell Monitor</div>
-    <div class="sub">Real-time cell balancing &amp; voltage spread</div>
-    <div id="cell-grid" class="cell-grid" style="margin-top:8px"></div>
-  </div>
-</div>>
-<div id="tab-scan" class="tab">
-  <div class="card" style="display:flex;align-items:center;gap:12px">
-    <div id="radar" class="radar paused"></div>
-    <div style="flex:1">
-      <div class="title" style="font-size:14px">BLE Radar Scanner</div>
-      <div id="scan-st" class="sub">Idle. Tap Scan to discover nearby BMS &amp; devices.</div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn btn-cyan" onclick="startScan()">Scan Nearby</button>
-        <button class="btn btn-dark" onclick="stopScan()">Stop</button>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="title" style="font-size:13px;color:var(--green)">1. Dedicated Battery BMS Controllers <span id="bms-cnt" class="badge">0</span></div>
-    <div class="sub">BAT-BMS, JK-BMS, JBD/Xiaoxiang, Daly, ANT, PACE, Seplos, BLE-UART</div>
-    <div id="bms-list"></div>
-  </div>
-  <div class="card">
-    <div class="title" style="font-size:13px;color:var(--mut)">2. Other Nearby Bluetooth Devices <span id="oth-cnt" class="badge">0</span></div>
-    <div class="sub">Non-BMS devices (earbuds, headphones, watches, TV, phones)</div>
-    <div id="oth-list"></div>
-  </div>
+<div class="tabs">
+<div class="tab active lp-target" data-tab="dash" data-help="tab_dash" onclick="showTab('dash')">Dashboard</div>
+<div class="tab lp-target" data-tab="scan" data-help="tab_scan" onclick="showTab('scan')">Scanner</div>
+<div class="tab lp-target" data-tab="ctrl" data-help="tab_ctrl" onclick="showTab('ctrl')">Control</div>
+<div class="tab lp-target" data-tab="mod" data-help="tab_mod" onclick="showTab('mod')">15 Modules</div>
+<div class="tab lp-target" data-tab="sys" data-help="tab_sys" onclick="showTab('sys')">System</div>
 </div>
 
-<div id="tab-pro" class="tab">
-  <div class="card">
-    <div class="title" style="font-size:14px">7 Universal BMS Pro Modules</div>
-    <div class="mod-card"><b>1. Hidden BMS Detection &amp; 8-Point Diagnostic Workflow</b><div class="sub">Probes silent/sleep BLE advertisements &amp; 8-point hardware checks.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(1)">Run 8-Point Probe</button></div>
-    <div class="mod-card"><b>2. Smart BMS Wake-Up &amp; Recovery Assistant</b><div class="sub">CC/CV pre-charge calculator &amp; zero-volt wake-up safety warnings.</div><div class="grid2" style="margin-top:6px"><input id="wu-s" type="number" value="16" placeholder="Series S"><input id="wu-ah" type="number" value="100" placeholder="Pack Ah"></div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(2)">Calculate CC/CV &amp; Wake</button></div>
-    <div class="mod-card"><b>3. Universal Auth Manager</b><div class="sub">PIN, 16-byte Key &amp; Challenge-Response session manager.</div><div style="display:flex;gap:6px;margin-top:6px"><input id="auth-pin" value="1234" placeholder="BMS PIN"><button class="btn btn-cyan" onclick="runMod(3)">Authenticate</button></div></div>
-    <div class="mod-card"><b>4. 10-Mode Smart Auth Diagnostics</b><div class="sub">Tests JK, JBD, Daly, ANT, PACE, Seplos, Modbus, CAN-BLE &amp; UART auth modes.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(4)">Run 10-Mode Scan</button></div>
-    <div class="mod-card"><b>5. 8-Step Technician Authorized Device Recovery</b><div class="sub">Guided MOSFET reset, EEPROM backup &amp; cell calibration recovery.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(5)">Execute 8-Step Recovery</button></div>
-    <div class="mod-card"><b>6. Intelligent Discovery Decision Engine</b><div class="sub">Auto-classifies BMS vs non-BMS OUI, UUID &amp; payload signatures.</div><button class="btn btn-cyan" style="margin-top:6px" onclick="runMod(6)">Run Decision Engine</button></div>
-    <div class="mod-card"><b>7. Protocol Laboratory</b><div class="sub">Raw Hex Frame Builder &amp; CRC16/Checksum Inspector.</div><div style="display:flex;gap:6px;margin-top:6px"><select id="proto-sel"><option>JK-BMS (4E 57)</option><option>JBD/Xiaoxiang (DD A5)</option><option>Daly Smart (A5 40)</option><option>ANT-BMS (AA 55)</option><option>PACE / Seplos (7E)</option></select><button class="btn btn-cyan" onclick="runMod(7)">Build Frame</button></div></div>
-    <div id="pro-out" class="out">Ready. Select any module above to execute.</div>
-  </div>
+<div class="page active" id="tab-dash">
+<div class="card">
+<div class="soc-box lp-target" data-help="soc_ring">
+<div class="ring">
+<svg width="88" height="88"><circle cx="44" cy="44" r="38" stroke="#1c2d4a" stroke-width="8" fill="none"/><circle id="soc-arc" cx="44" cy="44" r="38" stroke="#00e5ff" stroke-width="8" fill="none" stroke-dasharray="238.76" stroke-dashoffset="238.76" stroke-linecap="round"/></svg>
+<div class="ring-txt"><div class="ring-pct" id="soc-pct">--%</div><div class="ring-lbl">SOC</div></div>
+</div>
+<div style="flex:1">
+<div style="font-size:13px;font-weight:800" id="dash-name">No BMS Connected</div>
+<div class="sub" id="dash-proto">Protocol: -- | Hold any control 5s for Help</div>
+<div style="margin-top:8px;display:flex;gap:6px">
+<button class="btn btn-cyan lp-target" data-help="btn_go_scan" onclick="showTab('scan');startScan()">Auto-Scan BMS</button>
+</div>
+</div>
+</div>
+<div class="grid">
+<div class="kpi lp-target" data-help="kpi_volt"><div class="kpi-l">Pack Voltage</div><div class="kpi-v" id="k-volt">0.00 V</div></div>
+<div class="kpi lp-target" data-help="kpi_curr"><div class="kpi-l">Pack Current</div><div class="kpi-v" id="k-curr">0.0 A</div></div>
+<div class="kpi lp-target" data-help="kpi_pwr"><div class="kpi-l">Power</div><div class="kpi-v" id="k-pwr">0 W</div></div>
+<div class="kpi lp-target" data-help="kpi_cyc"><div class="kpi-l">Cycle Count</div><div class="kpi-v" id="k-cyc">--</div></div>
+</div>
+<div class="grid3">
+<div class="kpi lp-target" data-help="kpi_hi"><div class="kpi-l">Cell High</div><div class="kpi-v" id="k-hi">-- V</div></div>
+<div class="kpi lp-target" data-help="kpi_lo"><div class="kpi-l">Cell Low</div><div class="kpi-v" id="k-lo">-- V</div></div>
+<div class="kpi lp-target" data-help="kpi_dv"><div class="kpi-l">Delta V</div><div class="kpi-v" id="k-dv">0 mV</div></div>
+</div>
+<div class="grid">
+<div class="kpi lp-target" data-help="kpi_temp"><div class="kpi-l">MOS / Pack Temp</div><div class="kpi-v" id="k-t1">--.- &deg;C</div></div>
+<div class="kpi lp-target" data-help="kpi_temp"><div class="kpi-l">Cell Sensor 2</div><div class="kpi-v" id="k-t2">--.- &deg;C</div></div>
+</div>
+</div>
+<div class="card">
+<div class="title">Live Cell Voltages <span class="badge" id="cell-cnt">0S</span></div>
+<div id="cell-grid" class="empty">No BMS Connected. Scan &amp; connect a real Bluetooth or USB-OTG BMS to view live cell voltages.</div>
+</div>
 </div>
 
-<div class="nav">
-  <button class="nav-btn active" onclick="openTab('dash',this)"><span>⚡</span>Dashboard</button>
-  <button class="nav-btn" onclick="openTab('cells',this)"><span>🔋</span>16S Cells</button>
-  <button class="nav-btn" onclick="openTab('scan',this)"><span>📡</span>BLE Scan</button>
-  <button class="nav-btn" onclick="openTab('pro',this)"><span>🛠️</span>7 Pro Mods</button>
+<div class="page" id="tab-scan">
+<div class="card">
+<div class="title">Hardware Scanner <span class="badge">BLE + USB-OTG</span></div>
+<div class="sub" id="scan-status">Ready. Only real Bluetooth &amp; USB-OTG hardware devices will appear below.</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn btn-cyan lp-target" style="flex:1" data-help="btn_scan" onclick="startScan()">Start Auto-Scan</button>
+<button class="btn btn-dark lp-target" style="flex:1" data-help="btn_stop_scan" onclick="stopScan()">Stop Scan</button>
+</div>
+</div>
+<div class="card">
+<div class="title">List 1: Battery BMS Controllers <span class="badge ok" id="bms-cnt">0</span></div>
+<div class="sub">Auto-detected JK, JBD/BAT-BMS, Daly, ANT, PACE, Seplos controllers</div>
+<div id="bms-list"><div class="empty">No BMS controllers found yet. Tap Start Auto-Scan.</div></div>
+</div>
+<div class="card">
+<div class="title">List 2: Other Nearby Devices <span class="badge warn" id="other-cnt">0</span></div>
+<div class="sub">Non-BMS Bluetooth &amp; USB-OTG peripherals discovered nearby</div>
+<div id="other-list"><div class="empty">No other nearby devices found yet.</div></div>
+</div>
 </div>
 
+<div class="page" id="tab-ctrl">
+<div class="card">
+<div class="title">Authorized BMS Controls</div>
+<div class="sub" id="ctrl-status">Connect a real BMS to enable MOSFET &amp; balancer controls.</div>
+<div class="sw-row lp-target" data-help="sw_chg"><div><div class="gate-name">Charge MOSFET</div><div class="gate-st">Allow battery charging current</div></div><div class="switch" id="sw-chg" onclick="toggleSw('chg')"></div></div>
+<div class="sw-row lp-target" data-help="sw_dsg"><div><div class="gate-name">Discharge MOSFET</div><div class="gate-st">Allow load output current</div></div><div class="switch" id="sw-dsg" onclick="toggleSw('dsg')"></div></div>
+<div class="sw-row lp-target" data-help="sw_bal"><div><div class="gate-name">Active Cell Balancing</div><div class="gate-st">Equalize high/low cell voltages</div></div><div class="switch" id="sw-bal" onclick="toggleSw('bal')"></div></div>
+<button class="btn btn-red lp-target" style="width:100%;margin-top:12px" data-help="btn_emerg" onclick="emergCutoff()">Emergency Cut-Off (CHG + DSG OFF)</button>
+</div>
+</div>
+
+<div class="page" id="tab-mod">
+<div class="card">
+<div class="title">15 Pro BMS Modules</div>
+<div class="sub" id="mod-out">Tap a module to run diagnostics, or hold 5s for Help.</div>
+</div>
+<div class="mod-grid" id="mod-grid"></div>
+</div>
+
+<div class="page" id="tab-sys">
+<div class="card">
+<div class="title">System &amp; Hardware Settings</div>
+<div class="sub">Universal BMS Pro v3.0 — Real Hardware Mode (No Demo Data)</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+<button class="btn btn-dark lp-target" data-help="gate_bt" onclick="openHwSetting('bt')">Bluetooth Settings</button>
+<button class="btn btn-dark lp-target" data-help="gate_gps" onclick="openHwSetting('gps')">Location Settings</button>
+<button class="btn btn-dark lp-target" data-help="gate_wifi" onclick="openHwSetting('wifi')">Wi-Fi Settings</button>
+<button class="btn btn-dark lp-target" data-help="gate_hot" onclick="openHwSetting('hot')">Hotspot Settings</button>
+<button class="btn btn-cyan lp-target" data-help="gate_nearby" onclick="reqPerms()">Grant Nearby Perms</button>
+<button class="btn btn-dark lp-target" data-help="btn_gate_open" onclick="openGate()">Open Hardware Gate</button>
+</div>
+</div>
+</div>
+
+<div class="lp-hud" id="lp-hud">
+<div style="font-size:12px;font-weight:800;color:var(--cyan)" id="lp-txt">Hold for Help: 5s</div>
+<div class="lp-bar"><div class="lp-fill" id="lp-fill"></div></div>
+</div>
+
+<div class="modal-bg" id="help-modal">
+<div class="modal-box">
+<div class="modal-h" id="hm-title">Feature Help</div>
+<div class="modal-sec">Purpose</div>
+<div class="modal-p" id="hm-purpose"></div>
+<div class="modal-sec">How It Works</div>
+<div class="modal-p" id="hm-how"></div>
+<button class="btn btn-cyan" style="width:100%;margin-top:14px" onclick="closeModal('help-modal')">Got It</button>
+</div>
+</div>
+
+<div class="modal-bg" id="auth-modal">
+<div class="modal-box">
+<div class="modal-h">Owner Password Required</div>
+<div class="modal-p" id="auth-dev-lbl">Enter the authorized owner password for this BMS controller.</div>
+<input class="inp" type="password" id="owner-pin" placeholder="Enter BMS Owner Password">
+<div style="display:flex;gap:8px;margin-top:12px">
+<button class="btn btn-dark" style="flex:1" onclick="closeModal('auth-modal')">Cancel</button>
+<button class="btn btn-green" style="flex:1" onclick="submitOwnerPin()">Authorize &amp; Connect</button>
+</div>
+</div>
 <script>
-const hasBridge=typeof window.BmsBridge!=='undefined';
-let gateUnlocked=false,activePack=0;
-const swState={chg:true,dsg:true,bal:true,mnt:false,emg:false};
-const packs=[
-  {name:'Pack #1 (16S 48V)',soc:82,v:53.4,a:18.5,cyc:142,t:[31.4,28.9,29.2,26.5],cells:[3.342,3.338,3.345,3.339,3.341,3.335,3.348,3.337,3.340,3.331,3.344,3.339,3.343,3.336,3.341,3.338]},
-  {name:'Pack #2 (16S 60V)',soc:64,v:60.8,a:-12.4,cyc:89,t:[33.1,30.2,30.5,27.0],cells:[3.802,3.798,3.805,3.799,3.801,3.794,3.810,3.796,3.800,3.791,3.804,3.799,3.803,3.795,3.801,3.797]},
-  {name:'Pack #3 (Live BLE)',soc:91,v:54.1,a:5.2,cyc:37,t:[29.0,27.4,27.6,25.8],cells:[3.381,3.380,3.382,3.379,3.381,3.378,3.384,3.380,3.381,3.377,3.382,3.380,3.381,3.379,3.382,3.380]}
+const hasBridge=typeof BmsBridge!=='undefined';
+let hwState={bt:false,nearby:false,wifi:false,hotspot:false,gps:false,otg:false};
+let connectedPacks={},activeMac='',pendingAuthMac='',bmsDevs=[],otherDevs=[];
+let swState={chg:false,dsg:false,bal:false};
+
+const MODS=[
+{id:1,t:'1. Auto-Protocol Detect',d:'Identify JK, JBD, Daly, ANT, PACE, Seplos'},
+{id:2,t:'2. Cell Health & IR',d:'Analyze cell delta & internal resistance'},
+{id:3,t:'3. Owner Auth Status',d:'Verify standard authorized BMS session'},
+{id:4,t:'4. Thermal Matrix',d:'Monitor MOSFET & pack temperature probes'},
+{id:5,t:'5. Cycle & SOH',d:'Track cycle life & state of health'},
+{id:6,t:'6. Balance Optimizer',d:'Inspect active/passive cell balancing'},
+{id:7,t:'7. Charge Curve',d:'Check CC/CV absorption & float stages'},
+{id:8,t:'8. Fault Logger',d:'Read OV, UV, OC, OT protection flags'},
+{id:9,t:'9. CAN / RS485 Bridge',d:'Verify inverter communication bus'},
+{id:10,t:'10. USB-OTG Serial',d:'Inspect wired UART/CDC BMS packets'},
+{id:11,t:'11. Fleet Export',d:'Export live pack snapshot JSON/CSV'},
+{id:12,t:'12. Firmware Info',d:'Read BMS hardware & bootloader version'},
+{id:13,t:'13. Calibration Check',d:'Verify voltage/current ADC zero-offset'},
+{id:14,t:'14. Protection Limits',d:'Inspect OVP, UVP, OCP thresholds'},
+{id:15,t:'15. Sleep / Wake',d:'Manage BMS low-power standby mode'}
 ];
-function bridgeCall(m,a){if(hasBridge&&typeof BmsBridge[m]==='function'){return a!==undefined?BmsBridge[m](a):BmsBridge[m]();}return null;}
-function updateHwStatus(raw){
-  try{
-    const s=typeof raw==='string'?JSON.parse(raw):raw;
-    setChip('chip-bt','BT',s.bt);setChip('chip-nearby','NEARBY',s.nearby);
-    setChip('chip-wifi','WIFI',s.wifi);setChip('chip-hs','HOTSPOT',s.hotspot);
-    setChip('chip-gps','GPS',s.gps);
-    const otg=document.getElementById('chip-otg');
-    otg.className='hw-chip '+(s.otg?'on':'ready');
-    otg.innerHTML='<span class="hw-dot"></span>USB-OTG: '+(s.otg?'CONNECTED':'READY');
-    document.getElementById('g-bt-st').textContent=s.bt?'ON (Ready)':'OFF - Required to scan BMS';
-    document.getElementById('g-nb-st').textContent=s.nearby?'GRANTED':'NOT GRANTED - Required on Android 13';
-    document.getElementById('g-gps-st').textContent=s.gps?'ON':'OFF (Optional for BLE scan)';
-    document.getElementById('g-wifi-st').textContent=s.wifi?'ON':'OFF';
-    document.getElementById('g-hs-st').textContent=s.hotspot?'ON':'OFF';
-    const score=(s.bt?40:0)+(s.nearby?40:0)+(s.gps?10:0)+(s.wifi?10:0);
-    document.getElementById('gate-prog').style.width=score+'%';
-    const eb=document.getElementById('enter-btn');
-    if(s.bt&&s.nearby){eb.disabled=false;eb.textContent='ENTER BAT-BMS DASHBOARD';}
-    else{eb.disabled=true;eb.textContent='LOCKED - ENABLE BLUETOOTH & NEARBY';}
-  }catch(e){}
+
+const HELP_DB={
+hw_bt:{t:'Bluetooth Status Chip',p:'Shows whether your phone Bluetooth radio is ON or OFF.',h:'Tap to open Android Bluetooth settings. Required for wireless BLE BMS scanning.'},
+hw_nearby:{t:'Nearby Devices Chip',p:'Shows Android Nearby Devices (BLE scan/connect) permission status.',h:'Tap to request runtime Bluetooth scan and connect permissions.'},
+hw_wifi:{t:'Wi-Fi Status Chip',p:'Displays current Wi-Fi adapter state.',h:'Tap to open Wi-Fi settings for cloud sync or Wi-Fi BMS bridges.'},
+hw_hot:{t:'Hotspot Status Chip',p:'Displays Mobile Hotspot state.',h:'Tap to open Hotspot settings if tethering external telemetry loggers.'},
+hw_gps:{t:'Location / BLE Chip',p:'Shows Location service state required by Android for BLE discovery.',h:'Tap to enable Location so Android Bluetooth Low Energy scans return devices.'},
+hw_otg:{t:'USB-OTG Chip',p:'Shows whether a wired USB-OTG serial BMS adapter is attached.',h:'Plug in a USB-OTG cable to your BMS UART/RS485 adapter and tap to scan.'},
+gate_bt:{t:'Bluetooth Radio Gate',p:'Ensures phone Bluetooth is powered on before scanning.',h:'Open Bluetooth Settings and toggle Bluetooth ON, then tap Recheck Hardware.'},
+gate_nearby:{t:'Nearby Devices Permission',p:'Grants Android permission to discover and pair with nearby BMS controllers.',h:'Tap Allow and accept the system permission prompt.'},
+gate_gps:{t:'Location / BLE Gate',p:'Android requires Location enabled to read BLE advertising packets.',h:'Tap Enable to turn on Location Services in Android settings.'},
+gate_wifi:{t:'Wi-Fi Adapter Gate',p:'Checks if Wi-Fi is available for optional telemetry or firmware checks.',h:'Tap Settings to configure Wi-Fi if needed.'},
+gate_hot:{t:'Mobile Hotspot Gate',p:'Checks Mobile Hotspot status for field logger connectivity.',h:'Tap Settings to manage hotspot sharing.'},
+gate_otg:{t:'USB-OTG Serial Gate',p:'Automatically detects wired USB-OTG BMS adapters.',h:'Connect an OTG adapter; status updates automatically on hardware recheck.'},
+btn_recheck:{t:'Recheck Hardware',p:'Polls Android hardware services for updated radio and permission states.',h:'Queries BmsBridge for live BT, Nearby, GPS, Wi-Fi, Hotspot, and USB-OTG status.'},
+btn_enter:{t:'Enter Dashboard',p:'Enters the main BMS interface and starts real hardware scanning.',h:'Closes the startup gate, opens the dashboard in a clean No BMS Connected state, and triggers auto-scan if ready.'},
+pack_sel:{t:'Connected Pack Selector',p:'Switches between multiple real connected BMS battery packs.',h:'Populates only after real BMS controllers are connected via Bluetooth or USB-OTG.'},
+btn_disc:{t:'Disconnect BMS',p:'Safely closes the active Bluetooth GATT or USB-OTG connection.',h:'Disconnects the selected BMS and resets the dashboard to No BMS Connected.'},
+tab_dash:{t:'Dashboard Tab',p:'Displays live SOC, pack voltage, current, power, temperatures, and cell voltages.',h:'Shows --% and 0.00 V until a real BMS is connected and streaming telemetry.'},
+tab_scan:{t:'Scanner Tab',p:'Scans for real Bluetooth BLE and USB-OTG BMS hardware.',h:'Separates discovered hardware into List 1 (Battery BMS Controllers) and List 2 (Other Nearby Devices).'},
+tab_ctrl:{t:'Control Tab',p:'Provides authorized Charge, Discharge, Balancing, and Emergency Cut-Off controls.',h:'Sends standard protocol commands to the currently connected BMS.'},
+tab_mod:{t:'15 Modules Tab',p:'Hosts 15 specialized BMS diagnostic and engineering tools.',h:'Tap any module card to run it on the connected BMS, or hold 5s for help.'},
+tab_sys:{t:'System Tab',p:'Quick access to Android hardware settings, permissions, and Startup Gate.',h:'Use these shortcuts anytime to adjust Bluetooth, Location, Wi-Fi, or Hotspot.'},
+soc_ring:{t:'State of Charge (SOC) Ring',p:'Visualizes remaining battery capacity percentage.',h:'Updates live from BMS telemetry packets; shows --% when no BMS is connected.'},
+btn_go_scan:{t:'Auto-Scan BMS',p:'Jumps to Scanner and starts discovering nearby BMS controllers.',h:'Starts real BLE and USB-OTG scanning with automatic protocol detection.'},
+kpi_volt:{t:'Pack Voltage',p:'Shows total battery pack terminal voltage in Volts.',h:'Calculated from live BMS telemetry; displays 0.00 V when disconnected.'},
+kpi_curr:{t:'Pack Current',p:'Shows live charging (+) or discharging (-) current in Amps.',h:'Displays 0.0 A when no BMS is connected.'},
+kpi_pwr:{t:'Pack Power',p:'Displays instantaneous power in Watts (Voltage x Current).',h:'Updates automatically from live voltage and current readings.'},
+kpi_cyc:{t:'Cycle Count',p:'Shows total completed charge/discharge cycles recorded by the BMS.',h:'Read directly from the BMS controller memory.'},
+kpi_hi:{t:'Highest Cell Voltage',p:'Identifies the maximum single-cell voltage in the series string.',h:'Helps spot overcharging cells; updates live from cell telemetry.'},
+kpi_lo:{t:'Lowest Cell Voltage',p:'Identifies the minimum single-cell voltage in the series string.',h:'Helps spot weak or imbalanced cells.'},
+kpi_dv:{t:'Cell Delta V',p:'Shows voltage difference between highest and lowest cells in mV.',h:'Lower Delta V (under 15mV) indicates a well-balanced battery pack.'},
+kpi_temp:{t:'Temperature Sensors',p:'Displays MOSFET and battery cell thermistor temperatures in Celsius.',h:'Prevents thermal runaway by monitoring real-time BMS probes.'},
+btn_scan:{t:'Start Auto-Scan',p:'Scans for real Bluetooth BLE and USB-OTG BMS hardware.',h:'Auto-detects JK, JBD/BAT-BMS, Daly, ANT, PACE, and Seplos protocols.'},
+btn_stop_scan:{t:'Stop Scan',p:'Stops active Bluetooth LE discovery to save phone battery.',h:'Halts the Android BLE scanner while keeping discovered lists visible.'},
+btn_connect_bms:{t:'One-Click Connect',p:'Connects to the selected BMS using standard authorized GATT/Serial.',h:'Initiates connection; if the BMS requires an owner password, prompts you manually.'},
+btn_pin_bms:{t:'Connect with Owner PIN',p:'Opens a manual owner password prompt for password-protected BMS units.',h:'Only accepts your authorized owner password—no bypass or brute-force.'},
+sw_chg:{t:'Charge MOSFET Switch',p:'Enables or disables the battery charging path.',h:'Sends an authorized Charge MOSFET ON/OFF frame to the connected BMS.'},
+sw_dsg:{t:'Discharge MOSFET Switch',p:'Enables or disables the battery load discharge path.',h:'Sends an authorized Discharge MOSFET ON/OFF frame to the connected BMS.'},
+sw_bal:{t:'Active Cell Balancing Switch',p:'Turns active/passive cell balancing on or off.',h:'Commands the BMS balancer to equalize high and low cell voltages.'},
+btn_emerg:{t:'Emergency Cut-Off',p:'Immediately disables both Charge and Discharge MOSFETs.',h:'Use in emergencies to isolate the battery pack from chargers and loads.'},
+btn_gate_open:{t:'Open Hardware Gate',p:'Re-opens the Startup Hardware Gate screen.',h:'Lets you re-verify Bluetooth, Nearby Devices, Location, Wi-Fi, Hotspot, and USB-OTG.'}
+};
+MODS.forEach(m=>{HELP_DB['mod_'+m.id]={t:m.t,p:m.d,h:'Tap this module while a real BMS is connected to execute diagnostic routine #'+m.id+' via BmsBridge.'};});
+
+function updateHwStatus(s){
+if(!s)return;
+hwState=Object.assign(hwState,s);
+const setChip=(id,on,cls)=>{const el=document.getElementById(id);if(!el)return;el.classList.remove('on','ready');if(on)el.classList.add(cls||'on');};
+setChip('hc-bt',hwState.bt,'on');
+setChip('hc-nearby',hwState.nearby,'on');
+setChip('hc-wifi',hwState.wifi,'ready');
+setChip('hc-hot',hwState.hotspot,'ready');
+setChip('hc-gps',hwState.gps,'on');
+setChip('hc-otg',hwState.otg,'on');
+const st=(id,ok,y,n)=>{const e=document.getElementById(id);if(e){e.textContent=ok?y:n;e.style.color=ok?'var(--green)':'var(--amber)';}};
+st('gs-bt',hwState.bt,'ON - Ready','OFF - Enable Bluetooth');
+st('gs-nearby',hwState.nearby,'GRANTED','REQUIRED - Tap Allow');
+st('gs-gps',hwState.gps,'ON - BLE Scan Ready','OFF - Enable Location');
+st('gs-wifi',hwState.wifi,'Connected / On','Off / Standby');
+st('gs-hot',hwState.hotspot,'Active','Off');
+st('gs-otg',hwState.otg,'USB-OTG Adapter Detected','No USB-OTG Adapter');
 }
-function setChip(id,lbl,on){const el=document.getElementById(id);el.className='hw-chip'+(on?' on':'');el.innerHTML='<span class="hw-dot"></span>'+lbl+': '+(on?'ON':'OFF');}
-function enterDashboard(){document.getElementById('preflight-gate').classList.add('hidden');gateUnlocked=true;}
-function openTab(id,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-function switchPack(idx){activePack=parseInt(idx,10);renderPack();}
-function renderPack(){
-  const p=packs[activePack];
-  document.getElementById('soc-pct').textContent=p.soc+'%';
-  document.getElementById('soc-ring').style.strokeDashoffset=339.29*(1-p.soc/100);
-  document.getElementById('liq-fill').style.height=p.soc+'%';
-  document.getElementById('k-volt').textContent=p.v.toFixed(1)+'V';
-  document.getElementById('k-curr').textContent=(p.a>=0?'+':'')+p.a.toFixed(1)+'A';
-  document.getElementById('k-pwr').textContent=Math.round(p.v*Math.abs(p.a))+'W';
-  document.getElementById('k-cyc').textContent=p.cyc;
-  document.getElementById('svg-pack').textContent=p.v.toFixed(1)+'V';
-  const hi=Math.max(...p.cells),lo=Math.min(...p.cells),dv=Math.round((hi-lo)*1000);
-  document.getElementById('k-hi').textContent=hi.toFixed(3)+'V';
-  document.getElementById('k-lo').textContent=lo.toFixed(3)+'V';
-  document.getElementById('k-dv').textContent=dv+'mV';
-  p.t.forEach((v,i)=>document.getElementById('t'+(i+1)).textContent=v.toFixed(1)+'°C');
-  let html='';
-  p.cells.forEach((c,i)=>{
-    const pct=Math.max(5,Math.min(100,((c-2.8)/1.4)*100));
-    html+='<div class="cell-item"><div class="cell-top"><span>C'+(i+1<10?'0':'')+(i+1)+(c===hi?' ▲':c===lo?' ▼':'')+'</span><span style="color:var(--cyan)">'+c.toFixed(3)+'V</span></div><div class="bar-bg"><div class="bar-fg" style="width:'+pct+'%"></div></div></div>';
-  });
-  document.getElementById('cell-grid').innerHTML=html;
+window.updateHwStatus=updateHwStatus;
+
+function refreshGate(){
+if(hasBridge&&BmsBridge.getHwStatusJson){
+try{updateHwStatus(JSON.parse(BmsBridge.getHwStatusJson()));}catch(e){}
+}else{updateHwStatus(hwState);}
 }
-function toggleSw(k){
-  swState[k]=!swState[k];
-  if(k==='emg'&&swState.emg){swState.chg=false;swState.dsg=false;}
-  ['chg','dsg','bal','mnt','emg'].forEach(x=>{
-    const el=document.getElementById('sw-'+x);
-    el.className='sw'+(x==='emg'?' danger':'')+(swState[x]?' on':'');
-  });
-  document.getElementById('svg-cmos').textContent=swState.chg?'ON':'OFF';
-  document.getElementById('svg-dmos').textContent=swState.dsg?'ON':'OFF';
-  document.getElementById('fl-chg').style.opacity=swState.chg?'1':'0.15';
-  document.getElementById('fl-dsg').style.opacity=swState.dsg?'1':'0.15';
-  bridgeCall('setControlSwitch',JSON.stringify({key:k,val:swState[k]}));
+function openHwSetting(t){
+if(!hasBridge)return;
+if(t==='bt'&&BmsBridge.openBluetoothSettings)BmsBridge.openBluetoothSettings();
+else if(t==='gps'&&BmsBridge.openLocationSettings)BmsBridge.openLocationSettings();
+else if(t==='wifi'&&BmsBridge.openWifiSettings)BmsBridge.openWifiSettings();
+else if(t==='hot'&&BmsBridge.openHotspotSettings)BmsBridge.openHotspotSettings();
+else if(t==='nearby'&&BmsBridge.requestStartupPermissions)BmsBridge.requestStartupPermissions();
+setTimeout(refreshGate,800);
 }
+function reqPerms(){if(hasBridge&&BmsBridge.requestStartupPermissions)BmsBridge.requestStartupPermissions();setTimeout(refreshGate,800);}
+function enterDashboard(){
+document.getElementById('preflight-gate').classList.add('hidden');
+if(hwState.bt&&hwState.nearby)startScan();
+}
+function openGate(){refreshGate();document.getElementById('preflight-gate').classList.remove('hidden');}
+
+function showTab(t){
+document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));
+document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+const p=document.getElementById('tab-'+t);if(p)p.classList.add('active');
+}
+
+function renderNoBms(){
+document.getElementById('conn-badge').textContent='No BMS Connected';
+document.getElementById('dash-name').textContent='No BMS Connected';
+document.getElementById('dash-proto').textContent='Protocol: -- | Hold any control 5s for Help';
+document.getElementById('soc-pct').textContent='--%';
+document.getElementById('soc-arc').style.strokeDashoffset='238.76';
+document.getElementById('k-volt').textContent='0.00 V';
+document.getElementById('k-curr').textContent='0.0 A';
+document.getElementById('k-pwr').textContent='0 W';
+document.getElementById('k-cyc').textContent='--';
+document.getElementById('k-hi').textContent='-- V';
+document.getElementById('k-lo').textContent='-- V';
+document.getElementById('k-dv').textContent='0 mV';
+document.getElementById('k-t1').textContent='--.- °C';
+document.getElementById('k-t2').textContent='--.- °C';
+document.getElementById('cell-cnt').textContent='0S';
+document.getElementById('cell-grid').className='empty';
+document.getElementById('cell-grid').textContent='No BMS Connected. Scan & connect a real Bluetooth or USB-OTG BMS to view live cell voltages.';
+document.getElementById('btn-disc').style.display='none';
+document.getElementById('ctrl-status').textContent='Connect a real BMS to enable MOSFET & balancer controls.';
+}
+
+function updatePackSelect(){
+const sel=document.getElementById('pack-sel');
+const keys=Object.keys(connectedPacks);
+if(!keys.length){sel.innerHTML='<option value="">No BMS Connected</option>';activeMac='';renderNoBms();return;}
+sel.innerHTML=keys.map(k=>'<option value="'+k+'"'+(k===activeMac?' selected':'')+'>'+connectedPacks[k].name+' ('+connectedPacks[k].proto+')</option>').join('');
+}
+function selectPack(mac){activeMac=mac;if(connectedPacks[mac])renderLivePack(connectedPacks[mac]);else renderNoBms();}
+
+function renderLivePack(p){
+if(!p){renderNoBms();return;}
+document.getElementById('conn-badge').textContent='LIVE: '+p.name+' ('+p.proto+')';
+document.getElementById('dash-name').textContent=p.name;
+document.getElementById('dash-proto').textContent='Protocol: '+p.proto+' | MAC/Port: '+p.mac;
+document.getElementById('btn-disc').style.display='inline-block';
+document.getElementById('ctrl-status').textContent='Connected to '+p.name+' ('+p.proto+')';
+const soc=(typeof p.soc==='number')?Math.max(0,Math.min(100,p.soc)):null;
+document.getElementById('soc-pct').textContent=soc!==null?soc+'%':'--%';
+document.getElementById('soc-arc').style.strokeDashoffset=soc!==null?(238.76*(1-soc/100)).toFixed(2):'238.76';
+const v=typeof p.volt==='number'?p.volt:0,c=typeof p.curr==='number'?p.curr:0;
+document.getElementById('k-volt').textContent=v.toFixed(2)+' V';
+document.getElementById('k-curr').textContent=(c>0?'+':'')+c.toFixed(1)+' A';
+document.getElementById('k-pwr').textContent=Math.round(v*c)+' W';
+document.getElementById('k-cyc').textContent=p.cyc!==undefined?p.cyc:'--';
+document.getElementById('k-t1').textContent=(p.t1!==undefined?p.t1.toFixed(1):'--.-')+' °C';
+document.getElementById('k-t2').textContent=(p.t2!==undefined?p.t2.toFixed(1):'--.-')+' °C';
+const cg=document.getElementById('cell-grid');
+if(Array.isArray(p.cells)&&p.cells.length){
+const hi=Math.max(...p.cells),lo=Math.min(...p.cells),dv=Math.round((hi-lo)*1000);
+document.getElementById('k-hi').textContent=hi.toFixed(3)+' V';
+document.getElementById('k-lo').textContent=lo.toFixed(3)+' V';
+document.getElementById('k-dv').textContent=dv+' mV';
+document.getElementById('cell-cnt').textContent=p.cells.length+'S';
+cg.className='cells';
+cg.innerHTML=p.cells.map((cv,i)=>'<div class="cell lp-target" data-help="kpi_hi"><div class="cell-n">C'+(i+1)+'</div><div class="cell-v">'+cv.toFixed(3)+'V</div></div>').join('');
+}else{
+document.getElementById('k-hi').textContent='-- V';
+document.getElementById('k-lo').textContent='-- V';
+document.getElementById('k-dv').textContent='0 mV';
+document.getElementById('cell-cnt').textContent='0S';
+cg.className='empty';
+cg.textContent='Connected to '+p.name+'. Waiting for live cell telemetry frames...';
+}
+}
+
 function startScan(){
-  document.getElementById('radar').classList.remove('paused');
-  document.getElementById('scan-st').textContent='Scanning BLE 5.0 (Strict BMS vs Other separation)...';
-  bridgeCall('startBleScan');
+bmsDevs=[];otherDevs=[];renderLists();
+document.getElementById('scan-status').textContent='Scanning real Bluetooth LE & USB-OTG hardware...';
+if(hasBridge&&BmsBridge.startBleScan)BmsBridge.startBleScan();
+else document.getElementById('scan-status').textContent='Android hardware bridge not present (preview mode).';
 }
 function stopScan(){
-  document.getElementById('radar').classList.add('paused');
-  document.getElementById('scan-st').textContent='Scan stopped.';
-  bridgeCall('stopBleScan');
+if(hasBridge&&BmsBridge.stopBleScan)BmsBridge.stopBleScan();
+document.getElementById('scan-status').textContent='Scan stopped.';
 }
-function onScanResults(raw){
-  try{
-    const d=typeof raw==='string'?JSON.parse(raw):raw;
-    const bms=d.bms||[],oth=d.other||[];
-    document.getElementById('bms-cnt').textContent=bms.length;
-    document.getElementById('oth-cnt').textContent=oth.length;
-    document.getElementById('bms-list').innerHTML=bms.length?bms.map(x=>'<div class="dev-item"><div><b>🔋 '+x.name+'</b><div class="sub">'+x.mac+' • '+x.proto+' • '+x.rssi+' dBm</div></div><button class="btn btn-green" onclick="connectBms(\''+x.mac+'\',\''+x.name+'\')">Connect BMS</button></div>').join(''):'<div class="sub" style="margin-top:6px">No BMS controllers found yet.</div>';
-    document.getElementById('oth-list').innerHTML=oth.length?oth.map(x=>'<div class="dev-item"><div><b>🎧 '+x.name+'</b><div class="sub">'+x.mac+' • Non-BMS • '+x.rssi+' dBm</div></div><span class="badge">IGNORED</span></div>').join(''):'<div class="sub" style="margin-top:6px">No other devices found.</div>';
-  }catch(e){}
+window.onBmsDeviceFound=function(d){
+if(!d||!d.mac)return;
+if(!bmsDevs.some(x=>x.mac===d.mac)){bmsDevs.push(d);renderLists();}
+};
+window.onOtherDeviceFound=function(d){
+if(!d||!d.mac)return;
+if(!otherDevs.some(x=>x.mac===d.mac)){otherDevs.push(d);renderLists();}
+};
+function renderLists(){
+document.getElementById('bms-cnt').textContent=bmsDevs.length;
+document.getElementById('other-cnt').textContent=otherDevs.length;
+const bl=document.getElementById('bms-list'),ol=document.getElementById('other-list');
+bl.innerHTML=bmsDevs.length?bmsDevs.map(d=>'<div class="dev-item"><div><div class="gate-name">'+d.name+' <span class="badge ok">'+(d.proto||'BMS')+'</span></div><div class="gate-st">'+d.mac+' | RSSI: '+d.rssi+' dBm</div></div><div style="display:flex;gap:5px"><button class="btn btn-dark lp-target" data-help="btn_pin_bms" onclick="openAuthModal(\''+d.mac+'\',\''+d.name.replace(/'/g,'')+'\')">PIN</button><button class="btn btn-green lp-target" data-help="btn_connect_bms" onclick="connectBms(\''+d.mac+'\')">Connect</button></div></div>').join(''):'<div class="empty">No BMS controllers found yet. Tap Start Auto-Scan.</div>';
+ol.innerHTML=otherDevs.length?otherDevs.map(d=>'<div class="dev-item"><div><div class="gate-name">'+(d.name||'Unknown')+'</div><div class="gate-st">'+d.mac+' | RSSI: '+d.rssi+' dBm</div></div><span class="badge warn">Peripheral</span></div>').join(''):'<div class="empty">No other nearby devices found yet.</div>';
 }
-function connectBms(mac,name){
-  document.getElementById('conn-badge').textContent='LINKING '+name;
-  bridgeCall('connectBms',mac);
+
+function connectBms(mac){
+document.getElementById('scan-status').textContent='Connecting to '+mac+'...';
+if(hasBridge&&BmsBridge.connectBms)BmsBridge.connectBms(mac);
 }
-function onBmsConnected(name){
-  document.getElementById('conn-badge').textContent='LIVE: '+name;
-  document.getElementById('pack-sel').value='2';
-  switchPack(2);
-  openTab('dash',document.querySelector('.nav-btn'));
+function openAuthModal(mac,name){
+pendingAuthMac=mac;
+document.getElementById('auth-dev-lbl').textContent='Enter the authorized owner password for '+(name||mac)+':';
+document.getElementById('owner-pin').value='';
+document.getElementById('auth-modal').classList.add('show');
+}
+function submitOwnerPin(){
+const pin=document.getElementById('owner-pin').value.trim();
+if(!pin){alert('Please enter your BMS owner password.');return;}
+closeModal('auth-modal');
+if(hasBridge&&BmsBridge.connectBmsWithPin)BmsBridge.connectBmsWithPin(pendingAuthMac,pin);
+else if(hasBridge&&BmsBridge.connectBms)BmsBridge.connectBms(pendingAuthMac);
+}
+function disconnectBms(){
+if(hasBridge&&BmsBridge.disconnectBms)BmsBridge.disconnectBms();
+if(activeMac){delete connectedPacks[activeMac];}
+updatePackSelect();
+}
+window.onBmsConnected=function(name,proto,mac){
+connectedPacks[mac]={name:name||'BMS',proto:proto||'Auto',mac:mac,volt:0,curr:0};
+activeMac=mac;
+updatePackSelect();
+renderLivePack(connectedPacks[mac]);
+showTab('dash');
+};
+window.onBmsDisconnected=function(mac){
+if(mac&&connectedPacks[mac])delete connectedPacks[mac];
+updatePackSelect();
+};
+window.onBmsAuthRequired=function(mac,name){openAuthModal(mac,name);};
+window.onLiveTelemetry=function(t){
+if(!t)return;
+const mac=t.mac||activeMac;
+if(!mac)return;
+connectedPacks[mac]=Object.assign(connectedPacks[mac]||{name:'BMS',proto:'Live',mac:mac},t);
+if(mac===activeMac)renderLivePack(connectedPacks[mac]);
+};
+
+function toggleSw(k){
+if(!activeMac){alert('Connect a real BMS first.');return;}
+swState[k]=!swState[k];
+document.getElementById('sw-'+k).classList.toggle('on',swState[k]);
+if(hasBridge&&BmsBridge.sendBmsCommand)BmsBridge.sendBmsCommand(k,swState[k]);
+}
+function emergCutoff(){
+if(!activeMac){alert('Connect a real BMS first.');return;}
+swState.chg=false;swState.dsg=false;
+document.getElementById('sw-chg').classList.remove('on');
+document.getElementById('sw-dsg').classList.remove('on');
+if(hasBridge&&BmsBridge.sendBmsCommand){BmsBridge.sendBmsCommand('chg',false);BmsBridge.sendBmsCommand('dsg',false);}
+}
+
+function renderMods(){
+document.getElementById('mod-grid').innerHTML=MODS.map(m=>'<div class="mod-card lp-target" data-help="mod_'+m.id+'" onclick="runMod('+m.id+')"><div class="mod-t">'+m.t+'</div><div class="mod-d">'+m.d+'</div></div>').join('');
 }
 function runMod(id){
-  const param=id===2?document.getElementById('wu-s').value+','+document.getElementById('wu-ah').value:id===3?document.getElementById('auth-pin').value:id===7?document.getElementById('proto-sel').value:'';
-  const res=bridgeCall('runProModule',id+'|'+param);
-  document.getElementById('pro-out').textContent=res||('Module #'+id+' executed locally.');
+if(hasBridge&&BmsBridge.runProModule){
+const res=BmsBridge.runProModule(id);
+document.getElementById('mod-out').textContent=res||'Module #'+id+' executed.';
+}else{document.getElementById('mod-out').textContent='Connect via Android APK to execute Module #'+id;}
 }
-setInterval(()=>{const raw=bridgeCall('getHardwareStatus');if(raw)updateHwStatus(raw);},1500);
-renderPack();
-if(!hasBridge){updateHwStatus({bt:true,nearby:true,wifi:true,hotspot:false,gps:true,otg:false});}
+
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function openHelp(key,fallbackTitle){
+const info=HELP_DB[key]||{t:fallbackTitle||'Control Help',p:'Provides direct interaction with this Universal BMS Pro v3.0 control.',h:'Tap normally to use this control, or hold any button/tab/control for 5 seconds anytime to inspect its Purpose and How It Works.'};
+document.getElementById('hm-title').textContent=info.t;
+document.getElementById('hm-purpose').textContent=info.p;
+document.getElementById('hm-how').textContent=info.h;
+document.getElementById('help-modal').classList.add('show');
+}
+
+/* 5-Second Long-Press Help Handler on all features, buttons, tabs, and controls */
+(function(){
+let timer=null,iv=null,startT=0,lpTriggered=false,activeEl=null;
+const hud=document.getElementById('lp-hud'),txt=document.getElementById('lp-txt'),fill=document.getElementById('lp-fill');
+function clearLP(){
+clearTimeout(timer);clearInterval(iv);timer=null;iv=null;
+hud.classList.remove('show');fill.style.width='0%';
+}
+document.addEventListener('pointerdown',function(e){
+const el=e.target.closest('.lp-target,button,.tab,.hw-chip,.gate-row,.kpi,.cell,.mod-card,.switch,select');
+if(!el)return;
+clearLP();lpTriggered=false;activeEl=el;startT=Date.now();
+timer=setTimeout(function(){
+hud.classList.add('show');
+iv=setInterval(function(){
+const elapsed=Date.now()-startT;
+const pct=Math.min(100,(elapsed/5000)*100);
+const rem=Math.max(0,Math.ceil((5000-elapsed)/1000));
+fill.style.width=pct+'%';
+txt.textContent='Hold for Help: '+rem+'s';
+if(elapsed>=5000){
+clearLP();lpTriggered=true;
+const key=activeEl.dataset.help||'';
+const lbl=(activeEl.innerText||'').split('\n')[0].trim().slice(0,40);
+openHelp(key,lbl);
+}
+},80);
+},250);
+},true);
+['pointerup','pointerleave','pointercancel','scroll'].forEach(ev=>document.addEventListener(ev,clearLP,true));
+document.addEventListener('click',function(e){
+if(lpTriggered){e.preventDefault();e.stopPropagation();lpTriggered=false;}
+},true);
+})();
+
+renderMods();
+renderNoBms();
+refreshGate();
 </script>
 </body>
 </html>
-<body>
+
+</div>
